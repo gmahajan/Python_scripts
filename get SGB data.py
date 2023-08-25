@@ -1,27 +1,60 @@
 import pandas as pd
 from jugaad_data.nse import bhavcopy_save, full_bhavcopy_save
-from datetime import datetime
+import datetime as dt
+import sys
+import os
 
-input_date = "2023-07-10"
-date_object = datetime.strptime(input_date,"%Y-%m-%d")
-bhavcopy_date = date_object.strftime("%Y,%-m,%-d")
+def get_date_from_input():
+  """Gets the date from the command line input.
 
-bhavcopy_save(datetime(print(bhavcopy_date)),"")
-#bc=pd.read_csv('cm23MAR2023bhav.csv')
-#full_bhavcopy_save(datetime(2023,3,28),"")
+  Returns:
+    A datetime object representing the input date.
+  """
+  if len(sys.argv) > 1:
+    date_str = sys.argv[1]
+    try:
+      return dt.datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+      print("Invalid date format.")
+      return None
+  else:
+    return dt.datetime.now()
+
+def get_output_directory_from_input():
+  """Gets the output directory from the command line input.
+
+  Returns:
+    A string representing the output directory.
+  """
+  if len(sys.argv) > 2:
+    output_dir = sys.argv[2]
+  else:
+    output_dir = os.getcwd()
+  return output_dir
 
 
-data = pd.read_csv('cm10JUL2023bhav.csv')
+input_date = get_date_from_input()
+input_outdir = get_output_directory_from_input()
+
+#down_date = datetime(2023,8,25)
+down_date = dt.datetime.combine(input_date, dt.time.min)
+print(f"Downloading data for : {down_date}")
+
+bhavcopy_save(down_date, input_outdir)
+
+down_date_str = down_date.strftime("%d%b%Y")
+print(f"down_date_str={down_date_str}")
+
+input_csv_file = os.path.join(input_outdir, f"cm{down_date_str}bhav.csv")
+print(f"input_csv_file={input_csv_file}")
+
+data = pd.read_csv(f'{input_csv_file}')
 data = data[data['SERIES']== 'GB']
 result = data[['SYMBOL','TIMESTAMP','OPEN','HIGH','LOW','CLOSE','TOTTRDQTY','TOTALTRADES']]
-#fulldata = pd.read_csv('sec_bhavdata_full_04Aug2023bhav.csv')
 
 print("complete get data")
 
-
 # save the CSV file
-#filenamedata = datetime.strftime("06",'%m%d%y').upper
-filename = 'Final10JUL2023bhav.csv'+ '_NSE.txt'
-result.to_csv('D:\\program codes\\Python\\Amibroker data script' +filename, header=False, index=False )
-print("Data Successfully write for ")
-print("Inside Save CSV")
+filename = os.path.join(input_outdir, f'{down_date_str}_NSE.txt')
+result.to_csv(filename, header=False, index=False)
+print(f"Successfully wrote : {filename}")
