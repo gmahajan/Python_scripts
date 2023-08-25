@@ -1,7 +1,12 @@
 import pandas as pd
 from jugaad_data.nse import bhavcopy_save, full_bhavcopy_save
 from datetime import datetime
-bhavcopy_save(datetime(2023,7,10),"")
+
+input_date = "2023-07-10"
+date_object = datetime.strptime(input_date,"%Y-%m-%d")
+bhavcopy_date = date_object.strftime("%Y,%-m,%-d")
+
+bhavcopy_save(datetime(print(bhavcopy_date)),"")
 #bc=pd.read_csv('cm23MAR2023bhav.csv')
 #full_bhavcopy_save(datetime(2023,3,28),"")
 
